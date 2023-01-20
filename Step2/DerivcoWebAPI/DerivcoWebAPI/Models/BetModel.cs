@@ -1,22 +1,28 @@
 ﻿namespace DerivcoWebAPI.Models
 {
-    public class ResponseResult
-    {
-        public bool Success { get; set; } = false;
-        public string? Message { get; set; }
-        public object? Data { get; set; }
-    }
-    public class Bet
-    {
+    public class Bet 
+    { 
         public Guid UserID { get; set; }
         public Guid BetID { get; set; }
-        public int BetNumber { get; set; }
+        public int? BetNumber { get; set; }
         public double BetAmount { get; set; }
+        public BetType BetType { get; set; }
     }
-    public class Payout
+    [Flags]
+    public enum BetType
     {
-        public bool Win { get; set; }
-        public int? WinningNumber { get; set; }
-        public double WinningAmount { get; set; }
+        Red = 1,
+        Black = 2,
+        Number = 3,
+        Even = 4,
+        Odd = 5,
+        OneToTwelve = 6,
+        ThirteenTo24 = 7,
+        TwentyfiveToThirtysix = 8,
+        OneToEighteen = 9,
+        NineteenToThirtysix = 10,
+        FirstColumn = 11,
+        SecondColumn = 12,
+        ThirdColumn = 13
     }
 }

@@ -16,21 +16,24 @@ namespace DerivcoWebAPI.Controllers
         }
 
         [HttpPost("PlaceBet")]
-        public async Task<ActionResult<ResponseResult>> PlaceBet([FromBody] Bet bet)
+        public async Task<IActionResult> PlaceBet([FromBody] List<Bet> bets)
         {
             try
             {
-                var tup = _rouletteService.ValidateBet(bet);
-                if (!tup.isValid)
+                foreach (Bet bet in bets)
                 {
-                    return BadRequest(new ResponseResult
-                    
+                    var tup = _rouletteService.ValidateBet(bet);
+                    if (!tup.isValid)
                     {
-                        Success = false,
-                        Message = tup.message
-                    });
+                        return BadRequest(new ResponseResult
+
+                        {
+                            Success = false,
+                            Message = tup.message
+                        });
+                    }
                 }
-                var result = await _rouletteService.PlaceBet(bet);
+                var result = await _rouletteService.PlaceBet(bets);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -39,7 +42,7 @@ namespace DerivcoWebAPI.Controllers
             }
         }
         [HttpGet("GetAllBets")]
-        public async Task<ActionResult<IEnumerable<Bet>>> GetAllBets()
+        public async Task<IActionResult> GetAllBets()
         {
             try
             {
@@ -56,7 +59,7 @@ namespace DerivcoWebAPI.Controllers
             }
         }
         [HttpGet("Spin")]
-        public ActionResult<ResponseResult> Spin()
+        public IActionResult Spin()
         {
             try
             {
@@ -74,20 +77,23 @@ namespace DerivcoWebAPI.Controllers
         }
 
         [HttpPost("Payout")]
-        public ActionResult<ResponseResult> Payout([FromBody] Bet bet)
+        public IActionResult Payout([FromBody] List<Bet> bets)
         {
             try
             {
-                var tup = _rouletteService.ValidateBet(bet);
-                if (!tup.isValid)
+                foreach (Bet bet in bets)
                 {
-                    return BadRequest(new ResponseResult
+                    var tup = _rouletteService.ValidateBet(bet);
+                    if (!tup.isValid)
                     {
-                        Success = false,
-                        Message = tup.message
-                    });
+                        return BadRequest(new ResponseResult
+                        {
+                            Success = false,
+                            Message = tup.message
+                        });
+                    }
                 }
-                var result = _rouletteService.Payout(bet);
+                var result = _rouletteService.Payout(bets);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -97,7 +103,7 @@ namespace DerivcoWebAPI.Controllers
         }
 
         [HttpGet("PreviousSpins")]
-        public ActionResult<List<int>> ShowPreviousSpins()
+        public IActionResult ShowPreviousSpins()
         {
             try
             {
@@ -112,6 +118,11 @@ namespace DerivcoWebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+        [HttpGet("GlobalError")]
+        public IActionResult GlobalError()
+        {
+            throw new Exception();
         }
     }
 }

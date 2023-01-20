@@ -11,7 +11,7 @@
         {
             _next = next;
         }
-
+        //This method gets invoked when there is an unhandled exeption anywhere in the soluation
         public async Task Invoke(HttpContext context)
         {
             try
