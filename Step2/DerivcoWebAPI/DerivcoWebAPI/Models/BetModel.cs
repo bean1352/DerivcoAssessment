@@ -1,11 +1,16 @@
-﻿namespace DerivcoWebAPI.Models
+﻿using Newtonsoft.Json.Converters;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+
+namespace DerivcoWebAPI.Models
 {
-    [Serializable]
     public class Bet 
     { 
         public Guid BetID { get; set; }
+        [Range(0, 36)]
         public int? BetNumber { get; set; }
         public double BetAmount { get; set; }
+        [Required]
         public BetType BetType { get; set; }
     }
     [Flags]

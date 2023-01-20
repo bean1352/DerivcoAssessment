@@ -1,6 +1,5 @@
 ﻿namespace DerivcoWebAPI.Models
 {
-    [Serializable]
     public class Payout: Bet
     {
         public Guid PayoutID { get; set; }

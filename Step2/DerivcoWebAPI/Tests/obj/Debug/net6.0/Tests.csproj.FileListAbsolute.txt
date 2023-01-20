@@ -114,3 +114,7 @@ C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\obj\Debug\ne
 C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\obj\Debug\net6.0\Tests.pdb
 C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\obj\Debug\net6.0\Tests.genruntimeconfig.cache
 C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\obj\Debug\net6.0\ref\Tests.dll
+C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\bin\Debug\net6.0\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\bin\Debug\net6.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+C:\Users\Dean Braun\Documents\DerivcoTest\Step2\DerivcoWebAPI\Tests\bin\Debug\net6.0\Swashbuckle.AspNetCore.Newtonsoft.dll

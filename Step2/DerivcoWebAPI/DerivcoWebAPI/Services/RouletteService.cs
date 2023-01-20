@@ -212,7 +212,7 @@ namespace DerivcoWebAPI.Services
 
                 return true;
             }
-            catch (SQLiteException ex)
+            catch
             {
                 return false;
             }
@@ -283,6 +283,12 @@ namespace DerivcoWebAPI.Services
         //determine is number is even or odd by using its remainder when divided by 2
         private bool IsEvenOdd(int previousSpin, int remainder)
         {
+            //0 is neither red,black,even or odd
+            if (previousSpin == 0)
+            {
+                return false;
+            }
+
             if (previousSpin % 2 == remainder)
             {
                 return true;

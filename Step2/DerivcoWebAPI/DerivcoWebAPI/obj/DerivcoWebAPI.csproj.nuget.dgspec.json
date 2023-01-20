@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[6.2.3, )"
             },
+            "Swashbuckle.AspNetCore.Newtonsoft": {
+              "target": "Package",
+              "version": "[6.5.0, )"
+            },
             "System.Data.SQLite.Core": {
               "target": "Package",
               "version": "[1.0.117, )"

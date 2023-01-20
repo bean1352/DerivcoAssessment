@@ -1,18 +1,40 @@
 using DerivcoWebAPI.Database;
 using DerivcoWebAPI.Services;
 using SqliteDapper.Demo.Database;
+using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+
 builder.Services.AddScoped<DatabaseConfig>();
 builder.Services.AddScoped<IDatabaseBootstrap, DatabaseBootstrap>();
 builder.Services.AddScoped<IRouletteService, RouletteService>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//builder.Services.AddSwaggerGenNewtonsoftSupport();
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddScoped<RouletteService>();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Dean Braun Derivco Assessment",
+        Description = "Roulette Web API",
+        Contact = new OpenApiContact
+        {
+            Name = "Dean Braun GitHub",
+            Email = "braundean11@gmail.com",
+            Url = new Uri("https://github.com/bean1352")
+        },
+    });
+});
 
 var app = builder.Build();
 
