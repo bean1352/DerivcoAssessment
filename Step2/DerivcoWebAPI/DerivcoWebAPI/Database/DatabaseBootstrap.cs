@@ -41,13 +41,28 @@ namespace DerivcoWebAPI.Database
                 return;
 
             connection.Execute("Create Table if not exists Bet (" +
-                "UserID uniqueidentifier NOT NULL," +
-                "BetID uniqueidentifier NOT NULL," +
+                "BetID uniqueidentifier NOT NULL PRIMARY KEY," +
                 "BetNumber int NOT NULL," +
                 "BetAmount float NOT NULL," +
                 "BetType int NOT NULL" +
                 ");");
-        }
+
+            connection.Execute("Create Table if not exists Spin (" +
+                "SpinID uniqueidentifier NOT NULL PRIMARY KEY," +
+                "Timestamp DateTime NOT NULL," +
+                "SpinValue int NOT NULL" +
+                ");");
+
+            connection.Execute("Create Table if not exists Payout (" +
+                "PayoutID uniqueidentifier NOT NULL PRIMARY KEY," +
+                "Win bit NOT NULL," +
+                "WinningNumber int NOT NULL," +
+                "WinningAmount float NOT NULL," +
+                "TotalWinningAmount float NOT NULL," +
+                "BetID uniqueidentifier NOT NULL," +
+                "FOREIGN KEY (BetID) REFERENCES Bet(BetID)" +
+                ");");
+    }
         public string? GetConnectionString()
         {
             return databaseConfig.Name;

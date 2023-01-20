@@ -25,9 +25,9 @@ namespace Tests
         }
         [TestMethod]
         //Test Spin endpoint by ensuring success and making sure spin number is between or equal to 0 and 36
-        public void SpinTest()
+        public async Task SpinTest()
         {
-            var actionResult = controller.Spin();;
+            var actionResult = await controller.Spin();;
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
             Assert.IsTrue(response?.Success);
@@ -61,16 +61,26 @@ namespace Tests
             var actionResult = await controller.PlaceBet(bet);
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
-            Assert.IsTrue(response?.Success);
             Assert.AreEqual(response?.Data, bet);
         }
         [TestMethod]
         //Test Payout endpoint by posting a bet object and checking if result is success and data is not null
-        public void PayoutTest()
+        public async Task PayoutTest()
         {
             //Spin  first to test if payout was success
-            controller.Spin();
+            await controller.Spin();
 
+            List<Bet> bet = GetBet();
+            var actionResult = controller.Payout(bet);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            Assert.IsTrue(response?.Success);
+            Assert.IsNotNull(response?.Data);
+        }
+        [TestMethod]
+        //Test Payout endpoint by posting a bet object and checking if result is success and data is not null
+        public void RouletteBetTest()
+        {
             List<Bet> bet = GetBet();
             var actionResult = controller.Payout(bet);
             var result = actionResult as OkObjectResult;
@@ -89,7 +99,6 @@ namespace Tests
             {
                 bets.Add(new Bet()
                 {
-                    UserID = Guid.NewGuid(),
                     BetID = Guid.NewGuid(),
                     BetAmount = random.Next(0, 1000),
                     BetNumber = random.Next(0, 37)

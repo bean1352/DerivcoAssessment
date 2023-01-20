@@ -59,11 +59,11 @@ namespace DerivcoWebAPI.Controllers
             }
         }
         [HttpGet("Spin")]
-        public IActionResult Spin()
+        public async Task<IActionResult> Spin()
         {
             try
             {
-                var result = _rouletteService.Spin();
+                var result = await _rouletteService.Spin();
                 return Ok(new ResponseResult
                 {
                     Success = true,
@@ -77,7 +77,7 @@ namespace DerivcoWebAPI.Controllers
         }
 
         [HttpPost("Payout")]
-        public IActionResult Payout([FromBody] List<Bet> bets)
+        public async Task<IActionResult> Payout([FromBody] List<Bet> bets)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace DerivcoWebAPI.Controllers
                         });
                     }
                 }
-                var result = _rouletteService.Payout(bets);
+                var result = await _rouletteService.Payout(bets);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -101,7 +101,23 @@ namespace DerivcoWebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        [HttpGet("GetAllPayouts")]
+        public async Task<IActionResult> GetAllPayouts()
+        {
+            try
+            {
+                var allPayouts = await _rouletteService.GetAllPayouts();
+                return Ok(new ResponseResult
+                {
+                    Success = true,
+                    Data = allPayouts
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet("PreviousSpins")]
         public IActionResult ShowPreviousSpins()
         {

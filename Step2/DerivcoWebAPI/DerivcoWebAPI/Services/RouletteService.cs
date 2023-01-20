@@ -10,16 +10,16 @@ namespace DerivcoWebAPI.Services
     {
         Task<ResponseResult> PlaceBet(List<Bet> bets);
         Task<IEnumerable<Bet>> GetAllBets();
-        int Spin();
-        ResponseResult Payout(List<Bet> bets);
-        List<int> ShowPreviousSpins();
+        Task<int> Spin();
+        Task<ResponseResult> Payout(List<Bet> bets);
+        Task<IEnumerable<Spin>> ShowPreviousSpins();
         (bool isValid, string message) ValidateBet(Bet bet);
         (bool isValid, int odds) GetOdds(BetType betType);
+        Task<IEnumerable<Payout>> GetAllPayouts();
     }
     public class RouletteService : IRouletteService
     {
         private readonly IDatabaseBootstrap _databaseBootstrap;
-        private static List<int> previousSpins = new();
 
         public RouletteService(IDatabaseBootstrap databaseBootstrap)
         {
@@ -66,23 +66,38 @@ namespace DerivcoWebAPI.Services
         }
         //Method to return a random number between or equal to 0 and 36
         //add spin number to static previousSpins list<int>
-        public int Spin()
+        public async Task<int> Spin()
         {
             Random random = new Random();
             int rouletteNumber = random.Next(0, 37);
 
-            previousSpins.Add(rouletteNumber);
+            Spin spin = new Spin()
+            {
+                SpinID = Guid.NewGuid(),
+                SpinValue = rouletteNumber,
+                Timestamp = DateTime.Now
+            };
+
+            using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
+
+            await connection.ExecuteAsync
+            ("INSERT INTO Spin (SpinID, SpinValue, Timestamp)" +
+                "VALUES (@SpinID, @SpinValue, @Timestamp);", spin);
+            
+
+            connection.Close();
 
             return rouletteNumber;
         }
         //Method to check if the user has won the bet as well as how much money they won
-        public ResponseResult Payout(List<Bet> bets)
+        public async Task<ResponseResult> Payout(List<Bet> bets)
         {
             try
             {
                 List<Payout> payouts = new();
                 //If there is not a previous spin
-                if (previousSpins.Count < 1)
+                List<Spin> previousSpins = (List<Spin>)await Task.Run(() => ShowPreviousSpins());
+                if (previousSpins is null || previousSpins.Count < 1)
                 {
                     return new ResponseResult
                     {
@@ -95,7 +110,7 @@ namespace DerivcoWebAPI.Services
                 foreach (Bet bet in bets)
                 {
                     //Get latest spin number
-                    var previousSpin = previousSpins.LastOrDefault();
+                    var previousSpin = previousSpins.FirstOrDefault().SpinValue;
 
                     bool winBet = ValidateBetWin(previousSpin, bet);
 
@@ -116,6 +131,7 @@ namespace DerivcoWebAPI.Services
                         //Win
                         payouts.Add(new Payout
                         {
+                            PayoutID = Guid.NewGuid(),
                             Win = true,
                             WinningAmount = bet.BetAmount * payout.odds,
                             WinningNumber = bet.BetNumber,
@@ -123,7 +139,6 @@ namespace DerivcoWebAPI.Services
                             BetAmount = bet.BetAmount,
                             BetID = bet.BetID,
                             BetType = bet.BetType,
-                            UserID = bet.UserID,
                             TotalWinningAmount = bet.BetAmount + (bet.BetAmount * payout.odds)
                         });
                     }
@@ -132,6 +147,7 @@ namespace DerivcoWebAPI.Services
                         //Lose
                         payouts.Add(new Payout
                         {
+                            PayoutID = Guid.NewGuid(),
                             Win = false,
                             WinningAmount = 0,
                             WinningNumber = previousSpin,
@@ -139,10 +155,17 @@ namespace DerivcoWebAPI.Services
                             BetAmount = bet.BetAmount,
                             BetID = bet.BetID,
                             BetType = bet.BetType,
-                            UserID = bet.UserID
                         });
                     }
                 }
+
+                bool saved = await SavePayout(payouts);
+
+                if (!saved)
+                {
+                    throw new Exception("Cannot save payout to the database.");
+                }
+
                 return new ResponseResult
                 {
                     Success = true,
@@ -159,6 +182,31 @@ namespace DerivcoWebAPI.Services
                 };
             }
         }
+
+        private async Task<bool> SavePayout(List<Payout> payouts)
+        {
+            try
+            {
+                using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
+
+                foreach (Payout payout in payouts)
+                {
+                    await connection.ExecuteAsync
+                    ("INSERT INTO Payout (PayoutID, Win, WinningNumber, WinningAmount, TotalWinningAmount, BetID)" +
+                     "VALUES (@PayoutID, @Win, @WinningNumber, @WinningAmount, @TotalWinningAmount, @BetID);", payout);
+                }
+
+
+                connection.Close();
+
+                return true;
+            }
+            catch (SQLiteException ex)
+            {
+                return false;
+            }
+        }
+
         //Determine is user has won the bet depending on whcih bet they chose
         private bool ValidateBetWin(int previousSpin, Bet bet)
         {
@@ -232,9 +280,11 @@ namespace DerivcoWebAPI.Services
         }
 
         //return static list of previous spins
-        public List<int> ShowPreviousSpins()
+        public async Task<IEnumerable<Spin>> ShowPreviousSpins()
         {
-            return previousSpins;
+            using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
+
+            return await connection.QueryAsync<Spin>("SELECT * from Spin order by timestamp desc;");
         }
         //Tuple method to ensure bet number is between or equal to 0 and 36 as well as bet amount is bigger than 0
         (bool isValid, string message) IRouletteService.ValidateBet(Bet bet)
@@ -274,6 +324,13 @@ namespace DerivcoWebAPI.Services
                 default:
                     return (false, 0);
             }
+        }
+
+        public async Task<IEnumerable<Payout>> GetAllPayouts()
+        {
+            using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
+
+            return await connection.QueryAsync<Payout>("SELECT * from Payout;"); ;
         }
     }
 }
