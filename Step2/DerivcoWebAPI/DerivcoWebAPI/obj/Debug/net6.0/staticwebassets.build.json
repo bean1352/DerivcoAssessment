@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "GOqAK7uRGKEzOUvnfuaYj1xJQNjYPY28m94KwHKwM0E=",
+  "Source": "DerivcoWebAPI",
+  "BasePath": "_content/DerivcoWebAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
