@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 namespace DerivcoWebAPI.Controllers
 {
     [ApiController]
+    [Produces("application/json")]
     [Route("[controller]")]
     public class RouletteController : ControllerBase
     {
@@ -15,8 +16,9 @@ namespace DerivcoWebAPI.Controllers
             _rouletteService = rouletteService;
         }
 
+        //Custom spin number added for testing
         [HttpPost("PlaceBet")]
-        public async Task<IActionResult> PlaceBet([FromBody] List<Bet> bets)
+        public async Task<IActionResult> PlaceBet([FromBody] List<Bet> bets, int? spinNumberCustom = null)
         {
             try
             {
@@ -33,7 +35,7 @@ namespace DerivcoWebAPI.Controllers
                         });
                     }
                 }
-                var result = await _rouletteService.PlaceBet(bets);
+                var result = await _rouletteService.PlaceBet(bets, spinNumberCustom);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -93,7 +95,7 @@ namespace DerivcoWebAPI.Controllers
                         });
                     }
                 }
-                var result = await _rouletteService.Payout(bets);
+                var result = await _rouletteService.Payout(bets, null);
                 return Ok(result);
             }
             catch (Exception ex)

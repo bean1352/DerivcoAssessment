@@ -8,10 +8,10 @@ namespace DerivcoWebAPI.Services
 {
     public interface IRouletteService
     {
-        Task<ResponseResult> PlaceBet(List<Bet> bets);
+        Task<ResponseResult> PlaceBet(List<Bet> bets, int? customSpinNumber);
         Task<IEnumerable<Bet>> GetAllBets();
         Task<int> Spin();
-        Task<ResponseResult> Payout(List<Bet> bets);
+        Task<ResponseResult> Payout(List<Bet> bets, int? customSpinNumber);
         Task<IEnumerable<Spin>> ShowPreviousSpins();
         (bool isValid, string message) ValidateBet(Bet bet);
         (bool isValid, int odds) GetOdds(BetType betType);
@@ -26,7 +26,8 @@ namespace DerivcoWebAPI.Services
             _databaseBootstrap = databaseBootstrap;
         }
         //Method to insert a new bet into the SQLite database using dapper
-        public async Task<ResponseResult> PlaceBet(List<Bet> bets)
+        //This method allows a user to place multiple bets, the roulette spins then the payout is calclated for all bets
+        public async Task<ResponseResult> PlaceBet(List<Bet> bets, int? customSpinNumber)
         {
             try
             {
@@ -35,17 +36,22 @@ namespace DerivcoWebAPI.Services
                 foreach (Bet bet in bets)
                 {
                     await connection.ExecuteAsync
-                    ("INSERT INTO Bet (UserID, BetID, BetNumber, BetAmount, BetType)" +
-                     "VALUES (@UserID, @BetID, @BetNumber, @BetAmount, @BetType);", bet);
+                    ("INSERT INTO Bet (BetID, BetNumber, BetAmount, BetType)" +
+                     "VALUES (@BetID, @BetNumber, @BetAmount, @BetType);", bet);
                 }
 
                 connection.Close();
 
-                return new ResponseResult
+                if (customSpinNumber == null)
                 {
-                    Success = true,
-                    Data = bets
-                };
+                    _ = await Spin();
+
+                    return await Payout(bets, customSpinNumber);
+                }
+                else
+                {
+                    return await Payout(bets, customSpinNumber);
+                }
             }
             catch (SQLiteException ex)
             {
@@ -90,7 +96,7 @@ namespace DerivcoWebAPI.Services
             return rouletteNumber;
         }
         //Method to check if the user has won the bet as well as how much money they won
-        public async Task<ResponseResult> Payout(List<Bet> bets)
+        public async Task<ResponseResult> Payout(List<Bet> bets, int? customSpinNumber)
         {
             try
             {
@@ -111,6 +117,11 @@ namespace DerivcoWebAPI.Services
                 {
                     //Get latest spin number
                     var previousSpin = previousSpins.FirstOrDefault().SpinValue;
+
+                    if (customSpinNumber != null)
+                    {
+                        previousSpin = (int)customSpinNumber; 
+                    }
 
                     bool winBet = ValidateBetWin(previousSpin, bet);
 

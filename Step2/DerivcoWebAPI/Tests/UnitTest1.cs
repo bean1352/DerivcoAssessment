@@ -27,7 +27,7 @@ namespace Tests
         //Test Spin endpoint by ensuring success and making sure spin number is between or equal to 0 and 36
         public async Task SpinTest()
         {
-            var actionResult = await controller.Spin();;
+            var actionResult = await controller.Spin(); ;
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
             Assert.IsTrue(response?.Success);
@@ -61,7 +61,7 @@ namespace Tests
             var actionResult = await controller.PlaceBet(bet);
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
-            Assert.AreEqual(response?.Data, bet);
+            Assert.IsNotNull(response?.Data);
         }
         [TestMethod]
         //Test Payout endpoint by posting a bet object and checking if result is success and data is not null
@@ -71,22 +71,141 @@ namespace Tests
             await controller.Spin();
 
             List<Bet> bet = GetBet();
-            var actionResult = controller.Payout(bet);
+            var actionResult = await controller.Payout(bet);
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
             Assert.IsTrue(response?.Success);
             Assert.IsNotNull(response?.Data);
         }
         [TestMethod]
-        //Test Payout endpoint by posting a bet object and checking if result is success and data is not null
-        public void RouletteBetTest()
+        public async Task RouletteEvenTest()
         {
-            List<Bet> bet = GetBet();
-            var actionResult = controller.Payout(bet);
+            List<Bet> bet = CreateBet(100, 0, BetType.Even);
+            var actionResult = await controller.PlaceBet(bet, 2);
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
-            Assert.IsTrue(response?.Success);
-            Assert.IsNotNull(response?.Data);
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteOddTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.Odd);
+            var actionResult = await controller.PlaceBet(bet, 3);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteRedTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.Red);
+            var actionResult = await controller.PlaceBet(bet, 2);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteBlackTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.Black);
+            var actionResult = await controller.PlaceBet(bet, 3);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteNumberTest()
+        {
+            List<Bet> bet = CreateBet(100, 22, BetType.Number);
+            var actionResult = await controller.PlaceBet(bet, 22);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteOneToTwelveTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.OneToTwelve);
+            var actionResult = await controller.PlaceBet(bet, 3);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteThirteenTo24Test()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.ThirteenTo24);
+            var actionResult = await controller.PlaceBet(bet, 20);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteTwentyFiveTo36Test()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.TwentyfiveToThirtysix);
+            var actionResult = await controller.PlaceBet(bet, 30);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteOneTo18Test()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.OneToEighteen);
+            var actionResult = await controller.PlaceBet(bet, 16);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteTwentyNineTeenTo36Test()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.NineteenToThirtysix);
+            var actionResult = await controller.PlaceBet(bet, 30);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteFirstColumnTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.FirstColumn);
+            var actionResult = await controller.PlaceBet(bet, 1);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteSecondColumnTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.SecondColumn);
+            var actionResult = await controller.PlaceBet(bet, 2);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
+        }
+        [TestMethod]
+        public async Task RouletteThirdColumnTest()
+        {
+            List<Bet> bet = CreateBet(100, 0, BetType.ThirdColumn);
+            var actionResult = await controller.PlaceBet(bet, 3);
+            var result = actionResult as OkObjectResult;
+            ResponseResult? response = result?.Value as ResponseResult;
+            var payout = response.Data as List<Payout>;
+            Assert.IsTrue(payout[0].Win);
         }
         //Method to create Bet object
         private static List<Bet> GetBet()
@@ -101,9 +220,23 @@ namespace Tests
                 {
                     BetID = Guid.NewGuid(),
                     BetAmount = random.Next(0, 1000),
-                    BetNumber = random.Next(0, 37)
+                    BetNumber = random.Next(0, 37),
+                    BetType = BetType.Number
                 });
             }
+
+            return bets;
+        }
+        private static List<Bet> CreateBet(double betAmount, int betNumber, BetType betType)
+        {
+            List<Bet> bets = new List<Bet>();
+            bets.Add(new Bet()
+            {
+                BetAmount = betAmount,
+                BetID = Guid.NewGuid(),
+                BetNumber = betNumber,
+                BetType = betType
+            });
 
             return bets;
         }

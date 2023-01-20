@@ -41,7 +41,7 @@ namespace DerivcoWebAPI.Database
                 return;
 
             connection.Execute("Create Table if not exists Bet (" +
-                "BetID uniqueidentifier NOT NULL PRIMARY KEY," +
+                "BetID uniqueidentifier NOT NULL," +
                 "BetNumber int NOT NULL," +
                 "BetAmount float NOT NULL," +
                 "BetType int NOT NULL" +
@@ -59,8 +59,7 @@ namespace DerivcoWebAPI.Database
                 "WinningNumber int NOT NULL," +
                 "WinningAmount float NOT NULL," +
                 "TotalWinningAmount float NOT NULL," +
-                "BetID uniqueidentifier NOT NULL," +
-                "FOREIGN KEY (BetID) REFERENCES Bet(BetID)" +
+                "BetID uniqueidentifier NOT NULL" +
                 ");");
     }
         public string? GetConnectionString()
