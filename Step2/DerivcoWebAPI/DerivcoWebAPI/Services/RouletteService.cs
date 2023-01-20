@@ -3,6 +3,7 @@ using DerivcoWebAPI.Database;
 using DerivcoWebAPI.Models;
 using SqliteDapper.Demo.Database;
 using System.Data.SQLite;
+using Z.Dapper.Plus;
 
 namespace DerivcoWebAPI.Services
 {
@@ -35,10 +36,12 @@ namespace DerivcoWebAPI.Services
 
                 foreach (Bet bet in bets)
                 {
-                    await connection.ExecuteAsync
-                    ("INSERT INTO Bet (BetID, BetNumber, BetAmount, BetType)" +
-                     "VALUES (@BetID, @BetNumber, @BetAmount, @BetType);", bet);
+                    bet.BetID = Guid.NewGuid();
                 }
+
+                await connection.ExecuteAsync
+                ("INSERT INTO Bet (BetID, BetNumber, BetAmount, BetType)" +
+                    "VALUES (@BetID, @BetNumber, @BetAmount, @BetType);", bets);
 
                 connection.Close();
 
@@ -113,10 +116,10 @@ namespace DerivcoWebAPI.Services
                     };
                 }
 
+                //Get latest spin number
+                var previousSpin = previousSpins.FirstOrDefault().SpinValue;
                 foreach (Bet bet in bets)
                 {
-                    //Get latest spin number
-                    var previousSpin = previousSpins.FirstOrDefault().SpinValue;
 
                     if (customSpinNumber != null)
                     {
@@ -145,7 +148,7 @@ namespace DerivcoWebAPI.Services
                             PayoutID = Guid.NewGuid(),
                             Win = true,
                             WinningAmount = bet.BetAmount * payout.odds,
-                            WinningNumber = bet.BetNumber,
+                            WinningNumber = previousSpin,
                             BetNumber = bet.BetNumber,
                             BetAmount = bet.BetAmount,
                             BetID = bet.BetID,
@@ -200,12 +203,10 @@ namespace DerivcoWebAPI.Services
             {
                 using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
 
-                foreach (Payout payout in payouts)
-                {
-                    await connection.ExecuteAsync
-                    ("INSERT INTO Payout (PayoutID, Win, WinningNumber, WinningAmount, TotalWinningAmount, BetID)" +
-                     "VALUES (@PayoutID, @Win, @WinningNumber, @WinningAmount, @TotalWinningAmount, @BetID);", payout);
-                }
+
+                await connection.ExecuteAsync
+                ("INSERT INTO Payout (PayoutID, Win, WinningNumber, WinningAmount, TotalWinningAmount, BetID)" +
+                 "VALUES (@PayoutID, @Win, @WinningNumber, @WinningAmount, @TotalWinningAmount, @BetID);", payouts);
 
 
                 connection.Close();
@@ -347,7 +348,19 @@ namespace DerivcoWebAPI.Services
         {
             using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
 
-            return await connection.QueryAsync<Payout>("SELECT * from Payout;"); ;
+            var sql = @"SELECT p.*, b.BetAmount, b.BetNumber, b.BetType
+                from Payout p
+                INNER JOIN Bet b ON p.BetID = b.BetID";
+
+            var products = await connection.QueryAsync<Payout, Bet, Payout>(sql, (payout, bet) => {
+                payout.BetID = bet.BetID;
+                payout.BetAmount = bet.BetAmount;
+                payout.BetType = bet.BetType;
+                return payout;
+            },
+            splitOn: "BetID");
+
+            return products;
         }
     }
 }

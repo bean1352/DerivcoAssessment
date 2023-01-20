@@ -1,11 +1,13 @@
 ﻿using Newtonsoft.Json.Converters;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace DerivcoWebAPI.Models
 {
     public class Bet 
-    { 
+    {
+        [JsonIgnore]
         public Guid BetID { get; set; }
         [Range(0, 36)]
         public int? BetNumber { get; set; }

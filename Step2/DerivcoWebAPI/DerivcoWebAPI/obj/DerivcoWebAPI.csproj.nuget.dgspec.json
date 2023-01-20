@@ -65,6 +65,10 @@
             "System.Data.SQLite.Core": {
               "target": "Package",
               "version": "[1.0.117, )"
+            },
+            "Z.Dapper.Plus": {
+              "target": "Package",
+              "version": "[4.0.38, )"
             }
           },
           "imports": [
