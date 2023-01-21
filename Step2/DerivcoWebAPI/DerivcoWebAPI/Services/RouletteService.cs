@@ -278,7 +278,7 @@ namespace DerivcoWebAPI.Services
             if (rouletteArray is null)
             {
                 CreateRouletteMatrix();
-                return false;
+                throw new ArgumentNullException(nameof(rouletteArray));
             }
             else
             {
