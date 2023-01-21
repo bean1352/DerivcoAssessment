@@ -11,6 +11,7 @@ namespace DerivcoWebAPI.Models
         public Guid BetID { get; set; }
         [Range(0, 36)]
         public int? BetNumber { get; set; }
+        [Range(1, double.PositiveInfinity)]
         public double BetAmount { get; set; }
         [Required]
         public BetType BetType { get; set; }

@@ -21,11 +21,31 @@ namespace DerivcoWebAPI.Services
     public class RouletteService : IRouletteService
     {
         private readonly IDatabaseBootstrap _databaseBootstrap;
-
+        private static int[,]? rouletteArray = null;
         public RouletteService(IDatabaseBootstrap databaseBootstrap)
         {
             _databaseBootstrap = databaseBootstrap;
+            CreateRouletteMatrix();
         }
+
+        private void CreateRouletteMatrix()
+        {
+            //Create multi dimensional array for roulette
+            //I know I could just get the column number and add 3 to search if number is here haha
+            //12x3 matrix populated in a single for loop not nested 
+            if (rouletteArray == null)
+            {
+                rouletteArray = new int[12, 3];
+                int row = rouletteArray.GetLength(0);
+                int col = rouletteArray.GetLength(1);
+
+                for (int i = 0; i < row * col; i++)
+                {
+                    rouletteArray[i / col, i % col] = i + 1;
+                }
+            }
+        }
+
         //Method to insert a new bet into the SQLite database using dapper
         //This method allows a user to place multiple bets, the roulette spins then the payout is calclated for all bets
         public async Task<ResponseResult> PlaceBet(List<Bet> bets, int? customSpinNumber)
@@ -255,18 +275,20 @@ namespace DerivcoWebAPI.Services
         //Determine which of the 3 columns the numbers falls into
         private bool ColumnNumber(int previousSpin, int columnNumber)
         {
-            //Create multi dimensional array for roulette
-            //I know I could just get the column number and add 3 to search if number is here haha
-            int[,] rouletteArray = { 
-                { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 }, { 10, 11, 12 }, { 13, 14, 15 }, { 16, 17, 18 }, 
-                { 19, 20, 21 }, { 22, 23, 24 }, { 25, 26, 27 }, { 28, 29, 30 }, { 31, 32, 33 }, { 34, 33, 36 }
-            };
-
-            for (int i = 0; i < 12; i++)
+            if (rouletteArray is null)
             {
-                if (rouletteArray[i, columnNumber - 1] == previousSpin)
+                CreateRouletteMatrix();
+                return false;
+            }
+            else
+            {
+                //use static roulette matrix
+                for (int i = 0; i < 12; i++)
                 {
-                    return true;
+                    if (rouletteArray[i, columnNumber - 1] == previousSpin)
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -348,6 +370,7 @@ namespace DerivcoWebAPI.Services
         {
             using var connection = new SQLiteConnection(_databaseBootstrap.GetConnectionString());
 
+            //Join the bet table on the query table on BetID with dapper
             var sql = @"SELECT p.*, b.BetAmount, b.BetNumber, b.BetType
                 from Payout p
                 INNER JOIN Bet b ON p.BetID = b.BetID";

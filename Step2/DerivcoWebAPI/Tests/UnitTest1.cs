@@ -31,7 +31,7 @@ namespace Tests
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
             Assert.IsTrue(response?.Success);
-            Assert.IsTrue((int)response?.Data >= 0 && (int)response.Data < 37);
+            Assert.IsTrue((int?)response?.Data >= 0 && (int?)response.Data < 37);
         }
         [TestMethod]
         //Test previousSpins endpoint by ensuring success and data is not null
@@ -85,7 +85,7 @@ namespace Tests
             var result = actionResult as OkObjectResult;
             ResponseResult? response = result?.Value as ResponseResult;
             var payout = response.Data as List<Payout>;
-            Assert.IsTrue(payout[0].Win);
+            Assert.IsTrue(payout?[0].Win);
         }
         [TestMethod]
         public async Task RouletteOddTest()
