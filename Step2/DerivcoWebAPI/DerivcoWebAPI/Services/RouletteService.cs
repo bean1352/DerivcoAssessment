@@ -28,7 +28,7 @@ namespace DerivcoWebAPI.Services
             CreateRouletteMatrix();
         }
 
-        private void CreateRouletteMatrix()
+        private static void CreateRouletteMatrix()
         {
             //Create multi dimensional array for roulette
             //I know I could just get the column number and add 3 to search if number is here haha
@@ -273,7 +273,7 @@ namespace DerivcoWebAPI.Services
             }
         }
         //Determine which of the 3 columns the numbers falls into
-        private bool ColumnNumber(int previousSpin, int columnNumber)
+        private static bool ColumnNumber(int previousSpin, int columnNumber)
         {
             if (rouletteArray is null)
             {
@@ -295,7 +295,7 @@ namespace DerivcoWebAPI.Services
             return false;
         }
         //Determine if number is between two values
-        private bool IsBetweenOrEqual(int previousSpin, int min, int max)
+        private static bool IsBetweenOrEqual(int previousSpin, int min, int max)
         {
             if (previousSpin >= min && previousSpin <= max)
             {
@@ -304,7 +304,7 @@ namespace DerivcoWebAPI.Services
             return false;
         }
         //determine is number is even or odd by using its remainder when divided by 2
-        private bool IsEvenOdd(int previousSpin, int remainder)
+        private static bool IsEvenOdd(int previousSpin, int remainder)
         {
             //0 is neither red,black,even or odd
             if (previousSpin == 0)
